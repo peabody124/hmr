@@ -392,10 +392,8 @@ def draw_skeleton(input_image, joints, draw_edges=True, vis=None, radius=None):
         if vis is not None and vis[child] == 0:
             continue
         if draw_edges:
-            cv2.circle(image, (point[0], point[1]), radius, colors['white'],
-                       -1)
-            cv2.circle(image, (point[0], point[1]), radius - 1,
-                       colors[jcolors[child]], -1)
+            cv2.circle(image, (point[0], point[1]), radius, colors['white'], -1)
+            cv2.circle(image, (point[0], point[1]), radius - 1, colors[jcolors[child]], -1)
         else:
             # cv2.circle(image, (point[0], point[1]), 5, colors['white'], 1)
             cv2.circle(image, (point[0], point[1]), radius - 1,
