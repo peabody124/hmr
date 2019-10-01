@@ -37,7 +37,7 @@ def Encoder_resnet(x, is_training=True, weight_decay=0.001, reuse=False):
     - variables: tf variables
     """
     from tensorflow.contrib.slim.python.slim.nets import resnet_v2
-    with tf.name_scope("Encoder_resnet", values=[x]):
+    with tf.compat.v1.name_scope("Encoder_resnet", values=[x]):
         with slim.arg_scope(
                 resnet_v2.resnet_arg_scope(weight_decay=weight_decay)):
             net, end_points = resnet_v2.resnet_v2_50(
@@ -73,7 +73,7 @@ def Encoder_fc3_dropout(x,
     """
     if reuse:
         print('Reuse is on!')
-    with tf.variable_scope(name, reuse=reuse) as scope:
+    with tf.compat.v1.variable_scope(name, reuse=reuse) as scope:
         net = slim.fully_connected(x, 1024, scope='fc1')
         net = slim.dropout(net, 0.5, is_training=is_training, scope='dropout1')
         net = slim.fully_connected(net, 1024, scope='fc2')
@@ -135,11 +135,11 @@ def Discriminator_separable_rotations(
     - variables: tf variables
     """
     data_format = "NHWC"
-    with tf.name_scope("Discriminator_sep_rotations", values=[poses, shapes]):
-        with tf.variable_scope("D") as scope:
+    with tf.compat.v1.name_scope("Discriminator_sep_rotations", values=[poses, shapes]):
+        with tf.compat.v1.variable_scope("D") as scope:
             with slim.arg_scope(
                 [slim.conv2d, slim.fully_connected],
-                    weights_regularizer=slim.l2_regularizer(weight_decay)):
+                    weights_regularizer=tf.keras.regularizers.l2(0.5 * (weight_decay))):
                 with slim.arg_scope([slim.conv2d], data_format=data_format):
                     poses = slim.conv2d(poses, 32, [1, 1], scope='D_conv1')
                     poses = slim.conv2d(poses, 32, [1, 1], scope='D_conv2')

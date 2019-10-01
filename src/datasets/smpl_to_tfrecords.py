@@ -86,7 +86,7 @@ def process_smpl_mocap(all_pkls, out_dir, num_shards, dataset_name):
         # Open new TFRecord file.
         tf_filename = out_path % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             j = 0
             while i < num_mocap and j < num_shards:
                 if i % 10000 == 0:
@@ -120,4 +120,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()

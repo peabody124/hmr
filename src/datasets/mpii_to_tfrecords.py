@@ -190,7 +190,7 @@ def add_to_tfrecord(anno, img_id, img_dir, coder, writer, is_train):
 
     # Add each people to tf record
     image_path = join(img_dir, anno_info.image.name)
-    with tf.gfile.FastGFile(image_path, 'rb') as f:
+    with tf.compat.v1.gfile.FastGFile(image_path, 'rb') as f:
         image_data = f.read()
     image = coder.decode_jpeg(image_data)
 
@@ -259,7 +259,7 @@ def process_mpii(anno, img_dir, out_dir, num_shards, is_train=True):
 
         tf_filename = out_path % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             # Count on total ppl in each shard
             num_ppl = 0
             while i < len(img_inds) and num_ppl < num_shards:
@@ -292,4 +292,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()

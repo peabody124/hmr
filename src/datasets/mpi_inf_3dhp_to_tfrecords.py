@@ -118,7 +118,7 @@ def add_to_tfrecord(im_path,
     if not exists(im_path):
         # print('!!--%s doesnt exist! Skipping..--!!' % im_path)
         return False
-    with tf.gfile.FastGFile(im_path, 'rb') as f:
+    with tf.compat.v1.gfile.FastGFile(im_path, 'rb') as f:
         image_data = f.read()
     image = coder.decode_jpeg(coder.png_to_jpeg(image_data))
     assert image.shape[2] == 3
@@ -193,7 +193,7 @@ def save_to_tfrecord(out_name, im_paths, gt2ds, gt3ds, cams, num_shards):
     while i < len(im_paths):
         tf_filename = out_name % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             j = 0
             while i < len(im_paths) and j < num_shards:
                 if i % 100 == 0:
@@ -282,4 +282,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()
