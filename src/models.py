@@ -134,46 +134,27 @@ def Discriminator_separable_rotations(
     - prediction: N x (1+23) or N x (1+23+1) if do_joint is on.
     - variables: tf variables
     """
-    data_format = "NHWC"
+    data_format = "channels_last"
     with tf.compat.v1.name_scope("Discriminator_sep_rotations", values=[poses, shapes]):
         with tf.compat.v1.variable_scope("D") as scope:
-            with slim.arg_scope(
-                [slim.conv2d, slim.fully_connected],
-                    weights_regularizer=tf.keras.regularizers.l2(0.5 * (weight_decay))):
-                with slim.arg_scope([slim.conv2d], data_format=data_format):
-                    poses = slim.conv2d(poses, 32, [1, 1], scope='D_conv1')
-                    poses = slim.conv2d(poses, 32, [1, 1], scope='D_conv2')
-                    theta_out = []
-                    for i in range(0, 23):
-                        theta_out.append(
-                            slim.fully_connected(
-                                poses[:, i, :, :],
-                                1,
-                                activation_fn=None,
-                                scope="pose_out_j%d" % i))
-                    theta_out_all = tf.squeeze(tf.stack(theta_out, axis=1))
+            poses = tf.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv1', data_format=data_format)
+            poses = tf.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv2', data_format=data_format)
+            theta_out = []
+            for i in range(0, 23):
+                theta_out.append(tf.contrib.layers.fully_connected(poses[:, i, :, :], 1, activation_fn=None, scope="pose_out_j%d" % i))
+            theta_out_all = tf.squeeze(tf.stack(theta_out, axis=1))
 
-                    # Do shape on it's own:
-                    shapes = slim.stack(
-                        shapes,
-                        slim.fully_connected, [10, 5],
-                        scope="shape_fc1")
-                    shape_out = slim.fully_connected(
-                        shapes, 1, activation_fn=None, scope="shape_final")
-                    """ Compute joint correlation prior!"""
-                    nz_feat = 1024
-                    poses_all = slim.flatten(poses, scope='vectorize')
-                    poses_all = slim.fully_connected(
-                        poses_all, nz_feat, scope="D_alljoints_fc1")
-                    poses_all = slim.fully_connected(
-                        poses_all, nz_feat, scope="D_alljoints_fc2")
-                    poses_all_out = slim.fully_connected(
-                        poses_all,
-                        1,
-                        activation_fn=None,
-                        scope="D_alljoints_out")
-                    out = tf.concat([theta_out_all,
-                                     poses_all_out, shape_out], 1)
+            # Do shape on it's own:
+            shapes = tf.contrib.layers.stack(shapes, tf.contrib.layers.fully_connected, [10, 5], scope="shape_fc1")
+            shape_out = tf.contrib.layers.fully_connected(shapes, 1, activation_fn=None, scope="shape_final")
+
+            """ Compute joint correlation prior!"""
+            nz_feat = 1024
+            poses_all = tf.contrib.layers.flatten(poses, scope='vectorize')
+            poses_all = tf.contrib.layers.fully_connected(poses_all, nz_feat, scope="D_alljoints_fc1")
+            poses_all = tf.contrib.layers.fully_connected(poses_all, nz_feat, scope="D_alljoints_fc2")
+            poses_all_out = tf.contrib.layers.fully_connected(poses_all, 1, activation_fn=None, scope="D_alljoints_out")
+            out = tf.concat([theta_out_all, poses_all_out, shape_out], 1)
 
             variables = tf.contrib.framework.get_variables(scope)
             return out, variables
