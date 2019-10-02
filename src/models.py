@@ -137,8 +137,8 @@ def Discriminator_separable_rotations(
     data_format = "channels_last"
     with tf.compat.v1.name_scope("Discriminator_sep_rotations", values=[poses, shapes]):
         with tf.compat.v1.variable_scope("D") as scope:
-            poses = tf.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv1', data_format=data_format)
-            poses = tf.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv2', data_format=data_format)
+            poses = tf.compat.v1.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv1', data_format=data_format)
+            poses = tf.compat.v1.layers.conv2d(poses, 32, [1, 1], padding='same', kernel_regularizer=tf.keras.regularizers.l2(0.5 * weight_decay), name='D_conv2', data_format=data_format)
             theta_out = []
             for i in range(0, 23):
                 theta_out.append(tf.contrib.layers.fully_connected(poses[:, i, :, :], 1, activation_fn=None, scope="pose_out_j%d" % i))
