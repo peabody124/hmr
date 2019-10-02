@@ -74,18 +74,14 @@ def Encoder_fc3_dropout(x,
     if reuse:
         print('Reuse is on!')
     with tf.compat.v1.variable_scope(name, reuse=reuse) as scope:
-        net = slim.fully_connected(x, 1024, scope='fc1')
-        net = slim.dropout(net, 0.5, is_training=is_training, scope='dropout1')
-        net = slim.fully_connected(net, 1024, scope='fc2')
-        net = slim.dropout(net, 0.5, is_training=is_training, scope='dropout2')
+        net = tf.contrib.layers.fully_connected(x, 1024, scope='fc1')
+        net = tf.contrib.layers.dropout(net, 0.5, is_training=is_training, scope='dropout1')
+        net = tf.contrib.layers.fully_connected(net, 1024, scope='fc2')
+        net = tf.contrib.layers.dropout(net, 0.5, is_training=is_training, scope='dropout2')
         small_xavier = variance_scaling_initializer(
             factor=.01, mode='FAN_AVG', uniform=True)
-        net = slim.fully_connected(
-            net,
-            num_output,
-            activation_fn=None,
-            weights_initializer=small_xavier,
-            scope='fc3')
+        net = tf.contrib.layers.fully_connected(net, num_output,activation_fn=None,
+                                                weights_initializer=small_xavier, scope='fc3')
 
     variables = tf.contrib.framework.get_variables(scope)
     return net, variables
